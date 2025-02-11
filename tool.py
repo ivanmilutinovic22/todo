@@ -12,10 +12,36 @@ class Status(Enum):
     IN_PROGRESS = 2
     DONE = 3
 
+class Priority(Enum):
+    OPTIONAL = 0
+    LOW = 1
+    MEDIUM = 2
+    HIGH = 3
+    CRITICAL = 4
+
 status_symbol = ['X', '-', '>', 'O']
-# Define global variables
 tasks = []
 current_task_index = 0
+upper_index = 0;
+current_index = 0;
+lower_index = 0;
+
+def show_screen_title(stdscr, text):
+    h, w = stdscr.getmaxyx()
+
+    stdscr.attron(curses.color_pair(2))
+    for _ in range(w // 2 - len(text) // 2):
+        stdscr.addch('-')
+    stdscr.addstr(0, w // 2 - len(text) // 2, text)
+    for _ in range(w // 2 + len(text) // 2 + len(text) % 2, w):
+        stdscr.addch('-')
+    stdscr.addch('\n')
+
+def show_screen_options(stdscr, text):
+    h, w = stdscr.getmaxyx()
+
+    stdscr.attron(curses.color_pair(2))
+    stdscr.addstr(h-1, 0, text)
 
 def default_curses(stdscr):
     curses.curs_set(0)
@@ -28,18 +54,21 @@ def load_tasks():
     return tasks
 
 def add_task(stdscr):
+    global tasks
+
     stdscr.clear()
 
-    h, w = stdscr.getmaxyx()
+    show_screen_title(stdscr, "ADD TASK")
 
     stdscr.attron(curses.color_pair(2))
-    text = "ADD TASK"
-    for _ in range(w // 2 - len(text) // 2):
-        stdscr.addch('-')
-    stdscr.addstr(0, w // 2 - len(text) // 2, text)
-    for _ in range(w // 2 + len(text) // 2 + len(text) % 2, w):
-        stdscr.addch('-')
-    stdscr.addch('\n')
+    stdscr.addstr("Category:")
+    stdscr.attron(curses.color_pair(1))
+    stdscr.addch(" ")
+    stdscr.refresh()
+
+    curses.echo()
+    curses.curs_set(2)
+    task_category = stdscr.getstr().decode('utf-8')
 
     stdscr.attron(curses.color_pair(2))
     stdscr.addstr("Title:")
@@ -47,7 +76,6 @@ def add_task(stdscr):
     stdscr.addch(" ")
     stdscr.refresh()
 
-    task_title = ""
     curses.echo()
     curses.curs_set(2)
     task_title = stdscr.getstr().decode('utf-8')
@@ -58,12 +86,25 @@ def add_task(stdscr):
     stdscr.addch(" ")
     stdscr.refresh()
 
-    task_description = ""
     curses.echo()
     task_description = stdscr.getstr().decode('utf-8')
 
-    tasks.append({'title' : task_title,
+    stdscr.attron(curses.color_pair(2))
+    stdscr.addstr("Priority (0-4):")
+    stdscr.attron(curses.color_pair(1))
+    stdscr.addch(" ")
+    stdscr.refresh()
+
+    curses.echo()
+    task_priority = stdscr.getstr().decode('utf-8')
+
+    if task_priority > "4" or task_priority < "0":
+        task_priority = "0"
+
+    tasks.append({'category' : task_category,
+                  'title' : task_title,
                   'description' : task_description,
+                  'priority' : Priority(int(task_priority)).value,
                   'status' : Status.NOT_DONE.value,
                   'created_at' : datetime.now().strftime("%d-%m-%Y %H:%M:%S")})
 
@@ -79,18 +120,21 @@ def update_task(stdscr):
 
     stdscr.clear();
 
-    h, w = stdscr.getmaxyx()
-
-    stdscr.attron(curses.color_pair(2))
-    text = "UPDATE TASK"
-    for _ in range(w // 2 - len(text) // 2):
-        stdscr.addch('-')
-    stdscr.addstr(0, w // 2 - len(text) // 2, text)
-    for _ in range(w // 2 + len(text) // 2 + len(text) % 2, w):
-        stdscr.addch('-')
-    stdscr.addch('\n')
+    show_screen_title(stdscr, "UPDATE TASK")
 
     stdscr.addstr(f"{tasks[current_task_index]['title']}\n\n")
+
+    stdscr.attron(curses.color_pair(2))
+    stdscr.addstr("New category:")
+    stdscr.attron(curses.color_pair(1))
+    stdscr.addch(" ")
+    stdscr.refresh()
+
+    curses.echo()
+    curses.curs_set(2)
+    new_category = stdscr.getstr().decode('utf-8')
+    if new_category != "":
+        tasks[current_task_index]['category'] = new_category
 
     stdscr.attron(curses.color_pair(2))
     stdscr.addstr("New title:")
@@ -99,7 +143,6 @@ def update_task(stdscr):
     stdscr.refresh()
 
     curses.echo()
-    curses.curs_set(2)
     new_title = stdscr.getstr().decode('utf-8')
     if new_title != "":
         tasks[current_task_index]['title'] = new_title
@@ -113,6 +156,18 @@ def update_task(stdscr):
     new_description = stdscr.getstr().decode('utf-8')
     if new_description != "":
         tasks[current_task_index]['description'] = new_description
+
+    stdscr.attron(curses.color_pair(2))
+    stdscr.addstr("New priority (0-4):")
+    stdscr.attron(curses.color_pair(1))
+    stdscr.addch(" ")
+
+    curses.echo()
+    new_priority = stdscr.getstr().decode('utf-8')
+    if new_priority != "":
+        if new_priority > "4" or new_priority < "0":
+            new_priority = "0"
+        tasks[current_task_index]['priority'] = Priority(int(new_priority)).value
         
     default_curses(stdscr)
 
@@ -121,16 +176,7 @@ def delete_task(stdscr):
 
     stdscr.clear()
 
-    h, w = stdscr.getmaxyx()
-
-    stdscr.attron(curses.color_pair(2))
-    text = "DELETE TASK"
-    for _ in range(w // 2 - len(text) // 2):
-        stdscr.addch('-')
-    stdscr.addstr(0, w // 2 - len(text) // 2, text)
-    for _ in range(w // 2 + len(text) // 2 + len(text) % 2, w):
-        stdscr.addch('-')
-    stdscr.addch('\n')
+    show_screen_title(stdscr, "DELETE TASK")
 
     stdscr.attron(curses.color_pair(1))
     stdscr.addstr(f"Are you sure you want to delete task: {tasks[current_task_index]['title']}\n")
@@ -150,78 +196,113 @@ def delete_task(stdscr):
     default_curses(stdscr)
 
 def draw_screen(stdscr):
-    global current_task_index
+    global current_task_index, upper_index, lower_index
 
     h, w = stdscr.getmaxyx()
-    curses.noecho()
+
     stdscr.clear();
 
-    stdscr.attron(curses.color_pair(2))
-    text = "TODO TOOL"
-    for _ in range(w // 2 - len(text) // 2):
-        stdscr.addch('-')
-    stdscr.addstr(0, w // 2 - len(text) // 2, text)
-    for _ in range(w // 2 + len(text) // 2 + len(text) % 2, w):
-        stdscr.addch('-')
-    stdscr.addch('\n')
+    show_screen_title(stdscr, "TODO TOOL")
     
     stdscr.attron(curses.color_pair(1))
+    '''curr_category = "-1"
     for index, task in enumerate(tasks):
+        if curr_category != task['category']:
+            curr_category = task['category']
+            if curr_category == "":
+                stdscr.attron(curses.color_pair(1))
+                if index == 0:
+                    stdscr.addstr("-------Uncategorized\n")
+                else:
+                    stdscr.addstr("\n-------Uncategorized\n")
+            else:
+                if index == 0:
+                    stdscr.attron(curses.color_pair(1))
+                    stdscr.addstr(f"-------{curr_category}\n")
+                else:
+                    stdscr.attron(curses.color_pair(1))
+                    stdscr.addstr(f"\n-------{curr_category}\n")
+
         if index == current_task_index:
             stdscr.addstr(f"  [{status_symbol[task['status']]}]  {task['title']}\n", curses.color_pair(2))
         else:
             stdscr.addstr(f"  [{status_symbol[task['status']]}]  {task['title']}\n")
+    '''
 
-    stdscr.attron(curses.color_pair(2))
-    stdscr.addstr(h-1, 0, "(q)-quit (a)-add (d)-delete (TAB)-change status (s)-sort")
+    task_rows = generate_task_rows().split("\n")
+
+    for index in range(upper_index, lower_index):
+        if index == current_task_index:
+            stdscr.addstr(task_rows[index] + "\n", curses.color_pair(2))
+        else:
+            stdscr.addstr(task_rows[index] + "\n")
+
+    show_screen_options(stdscr, f"(q)-quit (a)-add (d)-delete (TAB)-change status (s)-sort")
+
     stdscr.refresh()
 
     default_curses(stdscr)
+
+def generate_task_rows():
+    global tasks
+
+    tasks = sorted(tasks, key = lambda x: (x['category'], len(Status) - x['status']))
+
+    task_rows = ""
+    curr_category = "-1"
+    for index, task in enumerate(tasks):
+        task_rows += f"  [{status_symbol[task['status']]}]  {task['title']}\n"
+    return task_rows
+    
 
 def draw_task_screen(stdscr):
     global tasks, current_task_index
 
     task = tasks[current_task_index]
 
-    h, w = stdscr.getmaxyx()
 
-    curses.noecho()
     stdscr.clear()
 
+    show_screen_title(stdscr, "TASK INFO")
+
     stdscr.attron(curses.color_pair(2))
-    text = "TASK INFO"
-    for _ in range(w // 2 - len(text) // 2):
-        stdscr.addch('-')
-    stdscr.addstr(0, w // 2 - len(text) // 2, text)
-    for _ in range(w // 2 + len(text) // 2 + len(text) % 2, w):
-        stdscr.addch('-')
-    stdscr.addch('\n')
+    stdscr.addstr("Category:")
+    stdscr.attron(curses.color_pair(1))
+    stdscr.addstr(f" {task['category']}\n")
 
     stdscr.attron(curses.color_pair(2))
     stdscr.addstr("Title:")
     stdscr.attron(curses.color_pair(1))
     stdscr.addstr(f" {task['title']}\n")
+
     stdscr.attron(curses.color_pair(2))
     stdscr.addstr("Description:")
     stdscr.attron(curses.color_pair(1))
     stdscr.addstr(f" {task['description']}\n")
+
+    stdscr.attron(curses.color_pair(2))
+    stdscr.addstr("Priority:")
+    stdscr.attron(curses.color_pair(1))
+    stdscr.addstr(f" {Priority(task['priority']).name}\n")
+
     stdscr.attron(curses.color_pair(2))
     stdscr.addstr("Status:")
     stdscr.attron(curses.color_pair(1))
     stdscr.addstr(f" {Status(task['status']).name}\n")
+
     stdscr.attron(curses.color_pair(2))
     stdscr.addstr("Added:")
     stdscr.attron(curses.color_pair(1))
     stdscr.addstr(f" {task['created_at']}\n")
 
-    stdscr.attron(curses.color_pair(2))
-    stdscr.addstr(h-1, 0, "(b)-back (u)-update (d)-delete")
+    show_screen_options(stdscr, "(b)-back (u)-update (d)-delete")
+
     stdscr.refresh()
     
     default_curses(stdscr)
 
 def main(stdscr):
-    global tasks, current_task_index
+    global tasks, current_task_index, upper_index, lower_index
 
     curses.start_color()
     curses.init_color(1, 156, 156, 156)     # background color
@@ -230,28 +311,26 @@ def main(stdscr):
     curses.init_pair(1, 2, curses.COLOR_BLACK)
     curses.init_pair(2, 1, 3)
 
-    # Initialize the curses window
-    curses.curs_set(0)  # Hide the cursor
-    tasks = load_tasks()  # Load existing tasks from a file
-    tasks = sorted(tasks, key = lambda x: x['status'], reverse = True)
+    tasks = load_tasks() 
 
     stdscr.attron(curses.color_pair(1))
 
-    # Initial screen draw
+    h, w = stdscr.getmaxyx()
+    lower_index = min(len(tasks), h - 4)
+
     draw_screen(stdscr)
 
     while True:
+        key = stdscr.getch()  
 
-        # Wait for user input
-        key = stdscr.getch()  # Get the user's key press
-
-        # Handle key press events
-        if key == ord('q'):  # Quit the program
+        if key == ord('q'):
             save_tasks()
             break
         elif key == ord('a'):
             add_task(stdscr)
-            draw_screen(stdscr)
+            current_task_index = 0
+            upper_index = 0
+            lower_index = min(len(tasks), h - 4)
             draw_screen(stdscr)
         elif key == ord('\t'):
             tasks[current_task_index]['status'] =  (tasks[current_task_index]['status'] + 1) % 4
@@ -259,18 +338,24 @@ def main(stdscr):
         elif key == ord('d'):
             delete_task(stdscr);
             current_task_index = 0
+            upper_index = 0
+            lower_index = min(len(tasks), h - 4)
             draw_screen(stdscr)
         elif key == ord('s'):
-            tasks = sorted(tasks, key = lambda x: x['status'], reverse = True)
-            current_task_index = 0
             draw_screen(stdscr)
         elif key == ord('k'):
             if current_task_index > 0:
                 current_task_index -= 1
+                if current_task_index < upper_index:
+                    upper_index = current_task_index
+                    lower_index -= 1
                 draw_screen(stdscr)
         elif key == ord('j'):
             if current_task_index < len(tasks) - 1:
                 current_task_index += 1
+                if current_task_index >= lower_index:
+                    upper_index += 1
+                    lower_index = current_task_index+1
                 draw_screen(stdscr)
         elif key == ord('\n'):
             draw_task_screen(stdscr)
@@ -280,15 +365,18 @@ def main(stdscr):
                     break
                 elif key == ord('u'):
                     update_task(stdscr)
+                    current_task_index = 0
+                    upper_index = 0
+                    lower_index = min(len(tasks), h - 4)
                     draw_task_screen(stdscr)
                 elif key == ord('d'):
                     delete_task(stdscr);
+                    current_task_index = 0
+                    upper_index = 0
+                    lower_index = min(len(tasks), h - 4)
                     break
-            current_task_index = 0
             draw_screen(stdscr)
 
-
-# Start the curses application
 if __name__ == "__main__":
     curses.wrapper(main)
 

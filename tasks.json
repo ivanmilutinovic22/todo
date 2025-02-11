@@ -1,62 +1,106 @@
 [
     {
-        "title": "task screen",
-        "description": "to enter selected task and see more information about that task",
-        "status": 3,
-        "created_at": "11-02-2025 00:15:54"
-    },
-    {
-        "title": "task update",
-        "description": "change it so you must enter task that you want to update",
-        "status": 3,
-        "created_at": "11-02-2025 00:46:42"
-    },
-    {
-        "title": "task delete",
-        "description": "add delete screen are you sure you want to delete task: ...",
-        "status": 3,
-        "created_at": "11-02-2025 00:51:55"
-    },
-    {
+        "category": "Appearance",
         "title": "text cursos",
         "description": "add text cursos so you know where you need to input some text",
+        "priority": 0,
         "status": 3,
         "created_at": "11-02-2025 00:47:05"
     },
     {
-        "title": "sorting and filtering",
-        "description": "add sorting by given field (date, title, etc) and filtering by given value (done tasks,not done, etc...)",
-        "status": 2,
-        "created_at": "11-02-2025 00:15:54"
-    },
-    {
+        "category": "Appearance",
         "title": "look",
         "description": "fix text color and maybe add some new colors and add screen headers?",
+        "priority": 0,
         "status": 2,
         "created_at": "11-02-2025 00:15:54"
     },
     {
+        "category": "Appearance",
+        "title": "task categories",
+        "description": "find out a way to show task categories on tasks screen",
+        "priority": 1,
+        "status": 1,
+        "created_at": "11-02-2025 17:02:22"
+    },
+    {
+        "category": "Code",
         "title": "curses default",
         "description": "make function that sets curses to default values (echo, colors, etc...)",
+        "priority": 0,
         "status": 2,
         "created_at": "11-02-2025 00:51:05"
     },
     {
-        "title": "task info",
-        "description": "add more info about task (date, urgency level, etc...)",
+        "category": "Code",
+        "title": "functions",
+        "description": "a lot of repeated code so should make some functions to reduce it",
+        "priority": 2,
+        "status": 2,
+        "created_at": "11-02-2025 13:38:09"
+    },
+    {
+        "category": "Features",
+        "title": "task screen",
+        "description": "to enter selected task and see more information about that task",
+        "priority": 0,
+        "status": 3,
+        "created_at": "11-02-2025 00:15:54"
+    },
+    {
+        "category": "Features",
+        "title": "task update",
+        "description": "change it so you must enter task that you want to update",
+        "priority": 2,
+        "status": 3,
+        "created_at": "11-02-2025 00:46:42"
+    },
+    {
+        "category": "Features",
+        "title": "task delete",
+        "description": "add delete screen are you sure you want to delete task: ...",
+        "priority": 0,
+        "status": 3,
+        "created_at": "11-02-2025 00:51:55"
+    },
+    {
+        "category": "Features",
+        "title": "sorting",
+        "description": "add storting by category status and priority for now",
+        "priority": 2,
         "status": 2,
         "created_at": "11-02-2025 00:15:54"
     },
     {
-        "title": "add cancle option",
-        "description": "cancle for add and update event",
-        "status": 1,
-        "created_at": "11-02-2025 00:43:34"
+        "category": "Features",
+        "title": "task info",
+        "description": "add more info about task (date, urgency level, etc...)",
+        "priority": 0,
+        "status": 2,
+        "created_at": "11-02-2025 00:15:54"
     },
     {
+        "category": "Features",
         "title": "task groups",
         "description": "add task groups and show them grouped and show all task that dont have group together",
-        "status": 1,
+        "priority": 3,
+        "status": 2,
         "created_at": "11-02-2025 00:45:37"
+    },
+    {
+        "category": "Features",
+        "title": "listing tasks",
+        "description": "right now you cant list past maximum row amount make it so that you can",
+        "priority": 3,
+        "status": 1,
+        "created_at": "11-02-2025 15:02:16"
+    },
+    {
+        "category": "Features",
+        "title": "add cancle option",
+        "description": "cancle for add and update event",
+        "priority": 0,
+        "status": 1,
+        "created_at": "11-02-2025 00:43:34"
     }
 ]
